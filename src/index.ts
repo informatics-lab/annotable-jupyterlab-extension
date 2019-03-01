@@ -16,54 +16,24 @@ import {
   NotebookActions
 } from '@jupyterlab/notebook'
 
-function findPictures() {
-  // if cell.hasClassName('jp-RenderedImage')
-
-
-	var pictures = document.getElementsByClassName("jp-RenderedImage");
-	console.log('piczz!');
-	console.log(pictures.length);
-	console.log(pictures);
-	(window as any).pictures = pictures;
-
-	var picarray = Array.from(pictures);
-	console.log(picarray);
-
-	Array.from(pictures).forEach(function(picture){
-		console.log('worked');
-		console.log(picture);
-
-		var button = document.createElement("button");
-		button.innerHTML = "Do Something";
-
-		// 2. Append somewhere
-		picture.appendChild(button);
-
-	});
-};
-
-(window as any).findPictures = findPictures;
-
-
 
 /////////////////////////
-// uploadImage('https://ngj8pqd220.execute-api.eu-west-1.amazonaws.com/dev', 'image')
-  // .then(data => console.log(JSON.stringify(data))) // JSON-string from `response.json()` call
-  // .catch(error => console.error(error));
+// uploadImage('https://ikaf6tvl9d.execute-api.eu-west-1.amazonaws.com/dev', image)
+//   .then(data => console.log(JSON.stringify(data))) // JSON-string from `response.json()` call
+//   .catch(error => console.error(error));
 
-// function uploadImage(url = "", img = {}) {
-//   // Default options are marked with *
-//     // return fetch(url, {
-//     //   method: "POST",
-//     //   headers: {
-//     //     "Content-Type": "image/png",
-//     //     "Access-Control-Allow-Origin": true},
-//     //   data: { "user_file" : img },
-//     //   dataType: "text"
-//     // })
-//     // .then(response => response.json()); // parses response to JSON
-//     console.log("WAHAAYA WERE IN THE UPLOAD IMAGE SAFD;IAJHS;FIJASFD!!")
-// }
+function uploadImage(image: any) {
+    return fetch('https://ikaf6tvl9d.execute-api.eu-west-1.amazonaws.com/dev', {
+      method: "POST",
+      // headers: {
+      //   "Content-Type": "img/png;base64",
+      //   "Access-Control-Allow-Origin": true},
+      body: JSON.stringify({ "user_file" : (image as String)})
+      // dataType: "text"
+    })
+    // .then(response => response.json()); // parses response to JSON
+    console.log("WAHAAYA WERE IN THE UPLOAD IMAGE SAFD;IAJHS;FIJASFD!!")
+}
 
 /**
  * Initialization data for the jupyter-extension-new extension.
@@ -107,10 +77,21 @@ const extension: JupyterLabPlugin<void> = {
     //   console.log('NotebookActions.executed did a !')
     //   // findPictures()
     // })
-    NotebookActions.executed.connect(function(sender = NotebookActions){
-      console.log('Added function to NotebookActions')
-      console.log('NotebookActions', sender)
-      // addAnnotableButton(sender)
+    NotebookActions.executed.connect(function(sender, args){
+      var cellElement = args.cell.node.getElementsByClassName("jp-RenderedImage");
+      if (cellElement.length > 0){
+        var thisImage = cellElement[0].getElementsByTagName("img")[0].getAttribute("src"); // DANGER WILL ROBINSON - HACKY TO ASSUMER LEN 1
+        console.log(thisImage)
+        var thisImageDiv = cellElement[0];
+
+        var button = document.createElement("button");
+        button.innerHTML = "Send to the Annotable";
+        var myRunner = function(event: any){
+            uploadImage(thisImage)
+        };
+        button.onclick = myRunner;
+        thisImageDiv.appendChild(button)
+      }
     })
 
 
