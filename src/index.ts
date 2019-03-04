@@ -23,13 +23,16 @@ import {
 //   .catch(error => console.error(error));
 
 function uploadImage(image: any) {
-    return fetch('https://ikaf6tvl9d.execute-api.eu-west-1.amazonaws.com/dev', {
+    image = (image as String);
+    var mime_type = image.split(",")[0].split("data:")[1];
+    var data = image.split(",")[1];
+    return fetch('https://zpf8m2yw3d.execute-api.eu-west-1.amazonaws.com/dev/upload', {
       method: "POST",
-      // headers: {
-      //   "Content-Type": "img/png;base64",
-      //   "Access-Control-Allow-Origin": true},
-      body: JSON.stringify({ "user_file" : (image as String)})
-      // dataType: "text"
+      body: JSON.stringify({"data": data,
+                            "content_name": "adfsa",
+                            "mime_type": mime_type})
+      // body: {"user_file": image},
+      // dataType: "bytes"
     })
     // .then(response => response.json()); // parses response to JSON
     console.log("WAHAAYA WERE IN THE UPLOAD IMAGE SAFD;IAJHS;FIJASFD!!")
