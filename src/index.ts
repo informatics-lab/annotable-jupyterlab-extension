@@ -12,51 +12,28 @@ import {
 
 import '../style/index.css';
 
-// function addButton(picture: Element) {
-	
-
-// 	// 3. Add event handler
-// 	// button.addEventListener ("click", function() {
-// 	//   alert("Annotate");
-// 	// });
-// }
-
-function findPictures() {
-	var pictures = document.getElementsByClassName("jp-RenderedImage");
-	console.log('piczz!');
-	console.log(pictures.length);
-	console.log(pictures);
-	(window as any).pics = pictures;
-
-	var picarray = Array.from(pictures); 
-	console.log(picarray);
+import {
+  NotebookActions
+} from '@jupyterlab/notebook'
 
 
-	// for(let picture of pictures) {
-	// 	addButton(picture);
-	// }
-	Array.from(pictures).forEach(function(picture){
-		console.log('worked');
-		console.log(picture);
+/////////////////////////
+// uploadImage('https://ikaf6tvl9d.execute-api.eu-west-1.amazonaws.com/dev', image)
+//   .then(data => console.log(JSON.stringify(data))) // JSON-string from `response.json()` call
+//   .catch(error => console.error(error));
 
-		var button = document.createElement("button");
-		button.innerHTML = "Do Something";
-
-		// 2. Append somewhere
-		picture.appendChild(button);
-
-	}); //{
-		
-		
-	// 	var button = document.createElement("button");
-	// 	button.innerHTML = "Button";
-
-	// 	// 2. Append somewhere
-	// 	el.appendChild(button);
-	// });
-};
-
-(window as any).findPictures = findPictures;
+function uploadImage(image: any) {
+    return fetch('https://ikaf6tvl9d.execute-api.eu-west-1.amazonaws.com/dev', {
+      method: "POST",
+      // headers: {
+      //   "Content-Type": "img/png;base64",
+      //   "Access-Control-Allow-Origin": true},
+      body: JSON.stringify({ "user_file" : (image as String)})
+      // dataType: "text"
+    })
+    // .then(response => response.json()); // parses response to JSON
+    console.log("WAHAAYA WERE IN THE UPLOAD IMAGE SAFD;IAJHS;FIJASFD!!")
+}
 
 /**
  * Initialization data for the jupyter-extension-new extension.
@@ -89,10 +66,42 @@ const extension: JupyterLabPlugin<void> = {
 		// Add the command to the palette.
   	palette.addItem({command, category: 'Tutorial'});
 
-  	setInterval(findPictures, 1000);
+    // STUFF HAPPENS
 
+    // declare var notebookactions = NotebookActions;
+
+    console.log(NotebookActions)
+    console.log('---')
+    console.log(NotebookActions.executed)
+    // document.addEventListener('NotebookActions.executed.emit', function(event){
+    //   console.log('NotebookActions.executed did a !')
+    //   // findPictures()
+    // })
+    NotebookActions.executed.connect(function(sender, args){
+      var cellElement = args.cell.node.getElementsByClassName("jp-RenderedImage");
+      if (cellElement.length > 0){
+        var thisImage = cellElement[0].getElementsByTagName("img")[0].getAttribute("src"); // DANGER WILL ROBINSON - HACKY TO ASSUMER LEN 1
+        console.log(thisImage)
+        var thisImageDiv = cellElement[0];
+
+        var button = document.createElement("button");
+        button.innerHTML = "Send to the Annotable";
+        var myRunner = function(event: any){
+            uploadImage(thisImage)
+        };
+        button.onclick = myRunner;
+        thisImageDiv.appendChild(button)
+      }
+    })
+
+
+
+  	// setInterval(findPictures, 10000);
+    // uploadImage('https://ngj8pqd220.execute-api.eu-west-1.amazonaws.com/dev', 'image')
   }
 
 }
+
+
 
 export default extension;
